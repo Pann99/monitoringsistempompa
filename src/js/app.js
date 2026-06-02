@@ -1,13 +1,12 @@
 /* ================================================
    app.js — Logic utama: render UI, update data
+   Versi Firebase (data real dari ESP32)
    ================================================ */
 
-// Uncomment baris di bawah setelah Firebase dikonfigurasi
-// import { startFirebaseListener } from './firebase.js';
-// (firebase.js ada di folder yang sama: src/js/firebase.js)
+import { startFirebaseListener } from './firebase.js';
 
 // ════════════════════════════════════════════════
-// SVG VALVE — Template bagian-bagian valve
+// SVG VALVE
 // ════════════════════════════════════════════════
 
 const PIPE = `
@@ -90,14 +89,9 @@ function buildValveSVG(isOpen) {
 }
 
 // ════════════════════════════════════════════════
-// FUNGSI UPDATE UI
+// UPDATE UI
 // ════════════════════════════════════════════════
 
-/**
- * Update tampilan valve ke open/closed
- * @param {number} n       - nomor valve (1, 2, 3)
- * @param {boolean} isOpen - true = terbuka, false = tertutup
- */
 export function setValve(n, isOpen) {
   document.getElementById('vs' + n).innerHTML = buildValveSVG(isOpen);
 
@@ -109,10 +103,6 @@ export function setValve(n, isOpen) {
   badge.textContent = isOpen ? 'TERBUKA' : 'TERTUTUP';
 }
 
-/**
- * Update kartu metrik (tegangan, arus, daya, baterai)
- * @param {object} d - { v, a, p, bat, pct }
- */
 export function updateMetrics(d) {
   document.getElementById('val-v').innerHTML   = d.v.toFixed(1)   + '<span class="unit">V</span>';
   document.getElementById('val-a').innerHTML   = d.a.toFixed(2)   + '<span class="unit">A</span>';
@@ -138,47 +128,27 @@ export function updateMetrics(d) {
 }
 
 // ════════════════════════════════════════════════
-// DATA DUMMY — aktif saat Firebase belum terhubung
-// Hapus/comment bagian ini setelah Firebase aktif
+// INDIKATOR STATUS KONEKSI
 // ════════════════════════════════════════════════
 
-let bPct = 35;
+function showConnecting() {
+  document.getElementById('ts').textContent = '🔄 Menghubungkan ke Firebase...';
+}
 
-function dummyTick() {
-  const v = 218 + Math.random() * 6;
-  const a = 1.15 + Math.random() * 0.45;
-  bPct    = Math.max(5, Math.min(100, bPct + (Math.random() > .55 ? .4 : -.25)));
-
-  updateMetrics({
-    v,
-    a,
-    p:   v * a,
-    bat: 7.0 + Math.random() * 0.5,
-    pct: Math.round(bPct)
-  });
-
-  // Dummy valve: valve 1 terbuka, 2 & 3 tertutup
-  setValve(1, true);
-  setValve(2, false);
-  setValve(3, false);
+function showConnected() {
+  // Timestamp ditangani oleh updateMetrics()
 }
 
 // ════════════════════════════════════════════════
-// INIT — jalankan saat halaman pertama dibuka
+// INIT
 // ════════════════════════════════════════════════
 
-// Render awal valve
-[1, 2, 3].forEach(n => setValve(n, n === 1));
+// Render awal valve (semua tertutup sampai data masuk)
+[1, 2, 3].forEach(n => setValve(n, false));
+showConnecting();
 
-// ── MODE DUMMY (tanpa Firebase) ──────────────────
-dummyTick();
-setInterval(dummyTick, 3000);
-
-// ── MODE FIREBASE (aktifkan setelah setup selesai) ──
-// Hapus dua baris dummy di atas, lalu uncomment:
-//
-// import { startFirebaseListener } from './firebase.js';
-// startFirebaseListener((data) => {
-//   updateMetrics(data);
-//   data.valve.forEach((isOpen, i) => setValve(i + 1, isOpen));
-// });
+// Mulai listener Firebase
+startFirebaseListener((data) => {
+  updateMetrics(data);
+  data.valve.forEach((isOpen, i) => setValve(i + 1, isOpen));
+});
