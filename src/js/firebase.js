@@ -27,15 +27,13 @@ export function startFirebaseListener(onDataReceived) {
     console.log("Data Firebase diterima:", data); // untuk debug
 
     onDataReceived({
-      v:     data.tegangan    ?? 0,
-      a:     data.arus        ?? 0,
-      p:     data.daya        ?? 0,
-      bat:   data.baterai     ?? 0,
-      pct:   data.baterai_pct ?? 0,
+      v:     data.tegangan ?? 0,
+      a:     data.arus     ?? 0,
+      p:     data.daya     ?? 0,
+      dod:   data.dod_pct  ?? 0,
       valve: [
         data.valve1 ?? false,
-        data.valve2 ?? false,
-        data.valve3 ?? false
+        data.valve2 ?? false
       ]
     });
   }, (error) => {

@@ -104,16 +104,16 @@ export function setValve(n, isOpen) {
 }
 
 export function updateMetrics(d) {
-  document.getElementById('val-v').innerHTML   = d.v.toFixed(1)   + '<span class="unit">V</span>';
-  document.getElementById('val-a').innerHTML   = d.a.toFixed(2)   + '<span class="unit">A</span>';
-  document.getElementById('val-p').innerHTML   = d.p.toFixed(0)   + '<span class="unit">W</span>';
-  document.getElementById('val-bat').innerHTML = d.bat.toFixed(2) + '<span class="unit">kWh</span>';
+  document.getElementById('val-v').innerHTML   = d.v.toFixed(1) + '<span class="unit">V</span>';
+  document.getElementById('val-a').innerHTML   = d.a.toFixed(2) + '<span class="unit">A</span>';
+  document.getElementById('val-p').innerHTML   = d.p.toFixed(0) + '<span class="unit">W</span>';
+  document.getElementById('val-bat').innerHTML = d.dod.toFixed(0) + '<span class="unit">%</span>';
 
-  document.getElementById('batt-fill').style.width = d.pct + '%';
-  document.getElementById('batt-pct').textContent  = d.pct + '%';
+  document.getElementById('batt-fill').style.width = d.dod + '%';
+  document.getElementById('batt-pct').textContent  = d.dod + '%';
 
   const bb = document.getElementById('batt-badge');
-  if (d.pct >= 30) {
+  if (d.dod >= 30) {
     bb.textContent = '● AMAN';
     bb.className   = 'badge aman';
     document.getElementById('batt-fill').style.background = '#16a34a';
@@ -144,7 +144,7 @@ function showConnected() {
 // ════════════════════════════════════════════════
 
 // Render awal valve (semua tertutup sampai data masuk)
-[1, 2, 3].forEach(n => setValve(n, false));
+[1, 2].forEach(n => setValve(n, false));
 showConnecting();
 
 // Mulai listener Firebase
